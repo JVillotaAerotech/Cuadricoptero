@@ -1,0 +1,51 @@
+import cv2
+import time
+from ultralytics import YOLO
+
+def cargar(ruta_modelo,num_camara=0):
+    """
+    Carga el modelo YOLO de la ruta especificada y especifica la camara a utilizar
+    Args:
+      ruta_modelo: ruta al modelo
+      num_camar: numero de camara a utilizar del sistema
+    Return:
+      Objeto YOLO cargado con el modelo
+      Objeto Videocapture usando la camara con el indice especificado
+    """
+    return YOLO(ruta_modelo),cv2.VideoCapture(num_camara)
+
+def calcular_fps(tiempo_anterior):
+    """
+    Calcula los FPS basándose en el tiempo transcurrido.
+    Args:
+      tiempo_anterior: Tiempo previo de procesar el frame actual
+    Return:
+      fps: FPS estimado para el frame recientemente procesado
+      tiempo_actual: tiempo posterior al procesamiento del frame
+    """
+  
+    tiempo_actual = time.time()
+    fps = 1 / (tiempo_actual - tiempo_anterior)
+    return fps, tiempo_actual
+
+  def main():
+    modelo,camara = cargar('models/yolov5nu.pt')
+
+    tiempo_anterior = time.time() #Inicializar el tiempo anterior para el cálculo de FPS
+
+    while True:
+        success, frame = camara.read()
+        if not success:
+            print("Error al capturar el fotograma de la cámara.")
+            break
+
+        inicio_tiempo = time.time()
+        resultados = modelo.track(frame, classes=0, conf=0.6, imgsz=320) #Procesar el fotograma
+        tiempo_procesamiento = time.time() - inicio_tiempo
+
+        fps, tiempo_anterior = calcular_fps(tiempo_anterior)
+
+        print(f"FPS: {fps:.2f}, Tiempo de procesamiento por fotograma: {tiempo_procesamiento:.4f} segundos")
+
+        if cv2.waitKey(1) == ord('q'): # Ctrl+C si se quiere salir en texto. Puesto con q por si en futuro quieres mostrar imagen
+            break
