@@ -1,0 +1,19 @@
+from ultralytics import YOLO
+import cv2
+
+
+model = YOLO('models/yolov5nu.pt')
+webcamera = cv2.VideoCapture(0)
+
+
+while True:
+    success, frame = webcamera.read()
+    
+    results = model.track(frame, classes=0, conf=0.6, imgsz=320)
+    cv2.imshow("Live Camera", results[0].plot())
+
+    if cv2.waitKey(1) == ord('q'):
+        break
+
+webcamera.release()
+cv2.destroyAllWindows()
