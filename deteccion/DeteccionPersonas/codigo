@@ -12,8 +12,7 @@ while True:
     results = model.track(frame, classes=0, conf=0.6, imgsz=320)
     cv2.imshow("Live Camera", results[0].plot())
 
-    if cv2.waitKey(1) == ord('q'):
-        break
+    
 
 webcamera.release()
 cv2.destroyAllWindows()
